@@ -283,6 +283,7 @@ Notes: Please see more commands in Makefile
 1. Install Laravel Breeze + Vue
 2. Make models + migrations: Chat, Message
 3. Make pivot tables "chat_user" & "message_status".
+4. Make ChatController
 
 ## License
 [The MIT License (MIT)](LICENSE)
