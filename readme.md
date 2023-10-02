@@ -279,16 +279,10 @@ Notes: Please see more commands in Makefile
 * [IDE PhpStorm configuration](docs/phpstorm.md)
 * [Xdebug configuration](docs/xdebug.md)
 
-## Working on your project
-1. For new feature development, fork `develop` branch into a new branch with one of the two patterns:
-    * `feature/{ticketNo}`
-2. Commit often, and write descriptive commit messages, so its easier to follow steps taken when reviewing.
-3. Push this branch to the repo and create pull request into `develop` to get feedback, with the format `feature/{ticketNo}` - "Short descriptive title of Jira task".
-4. Iterate as needed.
-5. Make sure that "All checks have passed" on CircleCI(or another one in case you are not using CircleCI) and status is green.
-6. When PR is approved, it will be squashed & merged, into `develop` and later merged into `release/{No}` for deployment.
-
-Note: You can find git flow detail example [here](https://danielkummer.github.io/git-flow-cheatsheet).
+## Working on project
+1. Install Laravel Breeze + Vue
+2. Make models + migrations: Chat, Message
+3. Make pivot tables "chat_user" & "message_status".
 
 ## License
 [The MIT License (MIT)](LICENSE)
