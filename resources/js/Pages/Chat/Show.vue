@@ -3,16 +3,9 @@ import {Head, router} from "@inertiajs/vue3";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import NavLink from "@/Components/NavLink.vue";
 
-defineProps({users: Object})
+defineProps({chat: Object})
 
-const store = (userId) => {
-    router.post('/chats', {
-        title: null,
-        users: [
-            userId
-        ]
-    });
-}
+
 
 </script>
 
@@ -33,22 +26,7 @@ const store = (userId) => {
         <div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 flex gap-x-4 lg:gap-x-6">
             <div class="w-full ">
                 <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg space-y-2">
-                    <div
-                        v-if="users"
-                        v-for="user in users"
-                        :key="user.id"
-                    >
-                        <div class="flex border border-1 rounded overflow-hidden hover:bg-gray-100">
-                            <div class="py-1 pl-3">{{ user.name }}</div>
-                            <div class="ml-auto bg-indigo-400 hover:bg-indigo-500 text-white ">
-                                <a class="inline-block  py-1 pl-2 pr-3" href="#"
-                                   @click.prevent="store(user.id)"
-                                >
-                                    Message
-                                </a>
-                            </div>
-                        </div>
-                    </div>
+                    {{chat}}
                 </div>
             </div>
             <div class="w-full">

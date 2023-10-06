@@ -9,4 +9,9 @@ class Chat extends Model
 {
     protected $table = 'chats';
     protected $guarded = false;
+
+    public function users(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'chat_user', 'chat_id', 'user_id');
+    }
 }

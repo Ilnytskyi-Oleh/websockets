@@ -284,6 +284,9 @@ Notes: Please see more commands in Makefile
 2. Make models + migrations: Chat, Message
 3. Make pivot tables "chat_user" & "message_status".
 4. Make ChatController
+5. Make UserResource
+6. Make Chat Index Vue Page. When clicked on button Message - sending request to ChatController/store.
+7. Make Chat/StoreRequest.
 
 ## License
 [The MIT License (MIT)](LICENSE)
