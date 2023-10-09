@@ -17,8 +17,14 @@ class ChatController extends Controller
         $users = User::whereNot('id', auth()->id())->get();
         $users = UserResource::collection($users)->resolve();
 
+        $chats = auth()->user()
+            ->chats()
+            ->has('messages')
+            ->get();
+        $chats = ChatResource::collection($chats)->resolve();
+
         return Inertia::render('Chat/Index',
-            compact('users')
+            compact('users', 'chats')
         );
     }
 
@@ -53,8 +59,17 @@ class ChatController extends Controller
             $chat = ChatResource::make($chat)->resolve();
         }
 
-        return Inertia::render('Chat/Show',
-            compact('chat')
+        return redirect()->route('chats.show', $chat['id']);
+    }
+
+    public function show(Chat $chat) {
+        $users = $chat->users()->get();
+        $users = UserResource::collection($users)->resolve();
+        $chat = ChatResource::make($chat)->resolve();
+
+        return Inertia::render(
+            'Chat/Show',
+            compact('chat', 'users')
         );
     }
 }
