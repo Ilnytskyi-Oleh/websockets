@@ -3,17 +3,51 @@ import {Head, router, Link} from "@inertiajs/vue3";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import NavLink from "@/Components/NavLink.vue";
 
+import { ref } from "vue";
+
+const isMakingGroup = ref(false);
+const selectedUserIds = ref([]);
+const title = ref('');
+const toggleSelectedUserIds = (id) => {
+    if(!isMakingGroup.value) return;
+
+    if (selectedUserIds.value.includes(id)) {
+        selectedUserIds.value = selectedUserIds.value.filter(
+            user => user.id !== id.id
+        );
+        return;
+    }
+
+    selectedUserIds.value.push(id);
+}
+
+const isSelectedUser = (id) => {
+    return !!selectedUserIds.value.includes(id);
+}
+
 defineProps({
     users: Object,
     chats: Object,
 })
 
+const cancelMakingGroup = () => {
+    isMakingGroup.value = false;
+    selectedUserIds.value = [];
+}
+
 const store = (userId) => {
     router.post('/chats', {
-        title: null,
+        title: title,
         users: [
             userId
         ]
+    });
+}
+
+const storeGroup = () => {
+    router.post('/chats', {
+        title: title.value,
+        users: selectedUserIds.value,
     });
 }
 
@@ -36,16 +70,58 @@ const store = (userId) => {
         <div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 flex gap-x-4 lg:gap-x-6">
             <div class="w-full ">
                 <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg space-y-2">
-                    <h2 class="text-2xl text-gray-600 mb-4">Users</h2>
+                    <div class="flex justify-between">
+                        <h2 class="text-2xl text-gray-600">Users</h2>
+                        <button
+                            v-if="!isMakingGroup"
+                            @click="isMakingGroup = true"
+                            class="px-3 bg-indigo-400 hover:bg-indigo-500 text-white rounded"
+                        >
+                            Make a group
+                        </button>
+                        <div v-if="isMakingGroup" class="space-x-2 flex justify-end">
+                            <input
+                                type="text"
+                                class="w-1/4"
+                                placeholder="Title"
+                                v-model="title">
+                            <button
+                                @click.prevent="storeGroup"
+                                class="px-3 py-1 bg-indigo-400 hover:bg-indigo-500 text-white rounded"
+                            >
+                                Create group
+                            </button>
+                            <button
+                                @click="cancelMakingGroup"
+                                class="px-3 py-1 bg-red-400 hover:bg-red-500 text-white rounded"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+
                     <div
                         v-if="users"
                         v-for="user in users"
                         :key="user.id"
                     >
-                        <div class="flex border border-1 rounded overflow-hidden hover:bg-gray-100">
-                            <div class="py-1 pl-3">{{ user.name }}</div>
-                            <div class="ml-auto bg-indigo-400 hover:bg-indigo-500 text-white ">
-                                <a class="inline-block  py-1 pl-2 pr-3" href="#"
+                        <div
+                            :class="['flex border border-1 rounded overflow-hidden',
+                                {'cursor-pointer': isMakingGroup },
+                                {'bg-green-100 hover:none': isSelectedUser(user.id)},
+                            ]"
+                             @click.stop.prevent="toggleSelectedUserIds(user.id)"
+                        >
+                            <div
+                                :class="['py-1 pl-3']"
+                            >
+                                {{ user.name }}
+                            </div>
+                            <div
+                                v-if="!isMakingGroup"
+                                class="ml-auto bg-indigo-400 hover:bg-indigo-500 text-white "
+                            >
+                                <a class="inline-block py-1 pl-2 pr-3" href="#"
                                    @click.prevent="store(user.id)"
                                 >
                                     Message

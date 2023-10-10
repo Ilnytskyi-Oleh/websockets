@@ -6,30 +6,37 @@ import {
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import NavLink from "@/Components/NavLink.vue";
 import {ref} from "vue";
+import Message from "@/Components/Message.vue";
 
-const {chat} = defineProps({
+const {chat, messages} = defineProps({
     chat: Object,
     users: Object,
+    messages: Object
 })
 
 let newMessageBody = ref('');
+let isSending = ref(false);
+const page = usePage();
 
 const store = () => {
+    if (isSending.value) {
+        return;
+    }
+
+    isSending.value = true;
+
     axios.post(route('message.store'), {
         chat_id: chat.id,
         body: newMessageBody.value,
-    }).then(res => {
-        console.log(res)
+    })
+    .then(res => {
+        messages.push(res.data)
+        newMessageBody.value = '';
+    })
+    .finally(() => {
+        isSending.value = false;
     });
-
-    // axios.post(route('message.store'), {
-    //   chat_id: chat.id,
-    //   body: newMessageBody.value,
-    // })
 }
-
-
-
 </script>
 
 <template>
@@ -66,15 +73,17 @@ const store = () => {
                     <h2 class="text-2xl text-gray-600 mb-4">Chat</h2>
                     <div>
                         <div >
-                            <div>
-
+                            <div v-if="!!messages.length" class="px-3 py-2 border border-1 rounded border-gray-200 mb-4">
+                                <div v-for="message in messages" :key="message.id">
+                                    <Message :message="message"/>
+                                </div>
                             </div>
                             <div>
                                 <input
                                     v-model="newMessageBody"
                                     @keyup.enter="store"
                                     type="text"
-                                    class="w-full border border-1 rounded border-gray-300 mb-4"
+                                    class="w-full border border-1 rounded border-gray-200 mb-4"
                                 >
                                 <div class="flex">
                                     <button
