@@ -5,13 +5,20 @@ import {
 
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import NavLink from "@/Components/NavLink.vue";
-import {ref} from "vue";
+import {onBeforeMount, ref} from "vue";
 import Message from "@/Components/Message.vue";
 
 const {chat, messages} = defineProps({
     chat: Object,
     users: Object,
     messages: Object
+})
+
+onBeforeMount(() => {
+    window.Echo.channel(`store-message.${chat.id}`)
+        .listen('.store-message', res => {
+            messages.push(res.message)
+        })
 })
 
 let newMessageBody = ref('');
@@ -53,7 +60,7 @@ const store = () => {
             </ul>
         </template>
 
-        <div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 flex gap-x-4 lg:gap-x-6">
+        <div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 flex flex-col md:flex-row gap-x-4 lg:gap-x-6">
             <div class="w-full ">
                 <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg space-y-2">
                     <h2 class="text-2xl text-gray-600 mb-4">Users</h2>

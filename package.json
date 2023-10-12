@@ -16,5 +16,9 @@
         "vite": "^4.0.0",
         "vue": "^3.2.41"
     },
-    "type":"module"
+    "type": "module",
+    "dependencies": {
+        "laravel-echo": "^1.15.3",
+        "pusher-js": "^8.3.0"
+    }
 }

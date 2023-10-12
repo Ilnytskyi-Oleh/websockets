@@ -37,7 +37,7 @@ const cancelMakingGroup = () => {
 
 const store = (userId) => {
     router.post('/chats', {
-        title: title,
+        title: null,
         users: [
             userId
         ]
@@ -67,13 +67,13 @@ const storeGroup = () => {
             </ul>
         </template>
 
-        <div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 flex gap-x-4 lg:gap-x-6">
+        <div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 flex flex-col md:flex-row gap-x-4 lg:gap-x-6">
             <div class="w-full ">
                 <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg space-y-2">
                     <div class="flex justify-between">
                         <h2 class="text-2xl text-gray-600">Users</h2>
                         <button
-                            v-if="!isMakingGroup"
+                            v-if="!isMakingGroup && !!users.length"
                             @click="isMakingGroup = true"
                             class="px-3 bg-indigo-400 hover:bg-indigo-500 text-white rounded"
                         >

@@ -6,7 +6,7 @@ use App\Http\Resources\User\UserResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class MessageResource extends JsonResource
+class MessageToOtherResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -22,7 +22,7 @@ class MessageResource extends JsonResource
             'user' => UserResource::make($this->user)->resolve(),
             'body' => $this->body,
             'time' => $this->time,
-            'isOwner' => $this->is_owner,
+            'isOwner' => false,
         ];
     }
 }
