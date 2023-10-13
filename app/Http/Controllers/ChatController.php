@@ -9,11 +9,13 @@ use App\Http\Resources\User\UserResource;
 use App\Models\Chat;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Request;
 use Inertia\Inertia;
 
-class ChatController extends Controller
+class
+ChatController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $users = User::whereNot('id', auth()->id())->get();
         $users = UserResource::collection($users)->resolve();
@@ -66,6 +68,9 @@ class ChatController extends Controller
     public function show(Chat $chat) {
         $messages = $chat->messages()->get();
         $users = $chat->users()->get();
+        $chat->unreadMessageStatuses()->update([
+            'is_read' => true,
+        ]);
 
         $messages = MessageResource::collection($messages)->resolve();
         $users = UserResource::collection($users)->resolve();

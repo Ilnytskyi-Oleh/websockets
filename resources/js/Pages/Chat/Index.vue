@@ -1,13 +1,15 @@
 <script setup>
-import {Head, router, Link} from "@inertiajs/vue3";
+import {Head, router, Link, usePage} from "@inertiajs/vue3";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import NavLink from "@/Components/NavLink.vue";
 
-import { ref } from "vue";
+import {onMounted, ref} from "vue";
 
 const isMakingGroup = ref(false);
 const selectedUserIds = ref([]);
+const unreadMessageCounts = ref([]);
 const title = ref('');
+const page = usePage();
 const toggleSelectedUserIds = (id) => {
     if(!isMakingGroup.value) return;
 
@@ -26,9 +28,20 @@ const isSelectedUser = (id) => {
 }
 
 defineProps({
-    users: Object,
-    chats: Object,
+    users: Array,
+    chats: Array,
 })
+
+
+window.Echo.channel(`users.${page.props.auth.user.id}`)
+    .listen('.store-message-status', res => {
+        page.props.chats.filter(chat => {
+            if (chat.id === res.chat_id) {
+                chat.unread_count = res.count;
+            }
+        })
+    });
+
 
 const cancelMakingGroup = () => {
     isMakingGroup.value = false;
@@ -63,7 +76,6 @@ const storeGroup = () => {
                 <NavLink :href="route('dashboard')" :active="route().current('dashboard')">
                     Link
                 </NavLink>
-
             </ul>
         </template>
 
@@ -141,7 +153,12 @@ const storeGroup = () => {
                     >
                         <div class="flex border border-1 rounded overflow-hidden hover:bg-gray-100">
                             <Link :href="route('chats.show', chat.id)" class="inline-block w-full pl-3 py-1">
-                                {{`${chat.id} -- ${chat.title ?? 'Chat'}` }}
+                                {{`${chat.id} -- ${chat.title ?? 'My Chat'}` }}
+                                <span v-if="chat?.unread_count"
+                                    class="bg-sky-500 rounded-full px-1.5 py-0.5 text-white text-xs ml-4"
+                                >
+                                    {{ chat.unread_count}}
+                                </span>
                             </Link>
                         </div>
                     </div>
