@@ -1,6 +1,6 @@
 <script setup>
 import {
-    Head, router, usePage,
+    Head, usePage,
 } from "@inertiajs/vue3";
 
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
@@ -14,16 +14,24 @@ const {chat, messages} = defineProps({
     messages: Object
 })
 
+const page = usePage();
+
 onBeforeMount(() => {
     window.Echo.channel(`store-message.${chat.id}`)
         .listen('.store-message', res => {
             messages.push(res.message)
+
+            if (page.url === `/chats/${chat.id}`) {
+                axios.patch('/message_statuses', {
+                    'message_id': res.message.id
+                })
+            }
+
         })
 })
 
 let newMessageBody = ref('');
 let isSending = ref(false);
-const page = usePage();
 
 const store = () => {
     if (isSending.value) {

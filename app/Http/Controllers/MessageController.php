@@ -9,13 +9,12 @@ use App\Http\Resources\Message\MessageResource;
 use App\Models\Chat;
 use App\Models\Message;
 use App\Models\MessageStatus;
-use App\Models\User;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class MessageController extends Controller
 {
-    public function store(StoreRequest $request) {
+    public function store(StoreRequest $request)
+    {
         $data = $request->validated();
 
         $data['user_id'] = auth()->id();
@@ -43,7 +42,7 @@ class MessageController extends Controller
                     ->where('is_read', false)
                     ->count();
 
-                broadcast(new StoreMessageStatusEvent($count, $data['chat_id'], $userId));
+                broadcast(new StoreMessageStatusEvent($count, $data['chat_id'], $userId, $message));
             }
 
             broadcast(new StoreMessageEvent($message))->toOthers();
@@ -53,8 +52,8 @@ class MessageController extends Controller
             DB::rollBack();
 
             return response()->json([
-               'status' => 'Error',
-               'message' => $exception->getMessage(),
+                'status' => 'Error',
+                'message' => $exception->getMessage(),
             ]);
         }
 

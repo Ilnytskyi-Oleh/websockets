@@ -35,6 +35,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/chats/{chat}', [\App\Http\Controllers\ChatController::class, 'show'])->name('chats.show');
 
     Route::post('/messages', [\App\Http\Controllers\MessageController::class, 'store'])->name('message.store');
+    Route::patch('/message_statuses', [\App\Http\Controllers\MessageStatusController::class, 'update'])
+        ->name('message_statuses.update');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

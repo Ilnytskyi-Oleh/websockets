@@ -20,17 +20,18 @@ class Chat extends Model
         return $this->hasMany(Message::class, 'chat_id', 'id');
     }
 
-    public function getUnreadCount(): int
-    {
-        return $this->hasMany(MessageStatus::class, 'chat_id', 'id')
-            ->where('user_id', auth()->id())
-            ->where('is_read', false)->count();
-    }
 
     public function unreadMessageStatuses(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(MessageStatus::class, 'chat_id', 'id')
             ->where('user_id', auth()->id())
             ->where('is_read', false);
+    }
+
+    public function lastMessage()
+    {
+        return $this->hasOne(Message::class, 'chat_id', 'id')
+            ->latestOfMany()
+            ->with('user');
     }
 }

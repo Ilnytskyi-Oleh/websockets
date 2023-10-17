@@ -2,6 +2,7 @@
 
 namespace App\Events;
 
+use App\Http\Resources\Message\MessageResource;
 use App\Http\Resources\Message\MessageToOtherResource;
 use App\Models\Message;
 use Illuminate\Broadcasting\Channel;
@@ -22,11 +23,12 @@ class StoreMessageStatusEvent implements ShouldBroadcast
     /**
      * Create a new event instance.
      */
-    public function __construct($count, $chatId, $userId)
+    public function __construct($count, $chatId, $userId, $message)
     {
         $this->count = $count;
         $this->chatId = $chatId;
         $this->userId = $userId;
+        $this->message = $message;
     }
 
     /**
@@ -49,6 +51,7 @@ class StoreMessageStatusEvent implements ShouldBroadcast
         return [
             'count' => $this->count,
             'chat_id' =>$this->chatId,
+            'message' => MessageResource::make($this->message)->resolve(),
         ];
     }
 }

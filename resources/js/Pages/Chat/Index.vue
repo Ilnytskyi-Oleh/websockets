@@ -3,13 +3,28 @@ import {Head, router, Link, usePage} from "@inertiajs/vue3";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import NavLink from "@/Components/NavLink.vue";
 
-import {onMounted, ref} from "vue";
+import {ref} from "vue";
 
 const isMakingGroup = ref(false);
 const selectedUserIds = ref([]);
-const unreadMessageCounts = ref([]);
 const title = ref('');
 const page = usePage();
+
+defineProps({
+    users: Array,
+    chats: Array,
+})
+
+window.Echo.channel(`users.${page.props.auth.user.id}`)
+    .listen('.store-message-status', res => {
+        page.props.chats.filter(chat => {
+            if (chat.id === res.chat_id) {
+                chat.unread_count = res.count;
+                chat.last_message = res.message;
+            }
+        })
+    });
+
 const toggleSelectedUserIds = (id) => {
     if(!isMakingGroup.value) return;
 
@@ -27,21 +42,9 @@ const isSelectedUser = (id) => {
     return !!selectedUserIds.value.includes(id);
 }
 
-defineProps({
-    users: Array,
-    chats: Array,
-})
-
-
-window.Echo.channel(`users.${page.props.auth.user.id}`)
-    .listen('.store-message-status', res => {
-        page.props.chats.filter(chat => {
-            if (chat.id === res.chat_id) {
-                chat.unread_count = res.count;
-            }
-        })
-    });
-
+const isCurrentUserMessage = (message) => {
+    return message.user.id === page.props.auth.user.id
+}
 
 const cancelMakingGroup = () => {
     isMakingGroup.value = false;
@@ -155,10 +158,25 @@ const storeGroup = () => {
                             <Link :href="route('chats.show', chat.id)" class="inline-block w-full pl-3 py-1">
                                 {{`${chat.id} -- ${chat.title ?? 'My Chat'}` }}
                                 <span v-if="chat?.unread_count"
-                                    class="bg-sky-500 rounded-full px-1.5 py-0.5 text-white text-xs ml-4"
+                                      class="bg-sky-500 rounded-full px-1.5 py-0.5 text-white text-xs ml-4"
                                 >
                                     {{ chat.unread_count}}
                                 </span>
+                                <div class="flex text-xs">
+                                    <span
+                                        v-if="!isCurrentUserMessage(chat.last_message)"
+                                        class="mr-2 text-sky-500"
+                                    >
+                                        {{chat.last_message.user.name}}:
+                                    </span>
+                                    <span class=" text-gray-500">
+                                        {{chat.last_message.body}}
+                                    </span>
+                                    <div class="italic ml-auto text-gray-400 mr-3">
+                                        {{chat.last_message.time}}
+                                    </div>
+                                </div>
+
                             </Link>
                         </div>
                     </div>
