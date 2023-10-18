@@ -6,6 +6,7 @@ use App\Events\StoreMessageEvent;
 use App\Events\StoreMessageStatusEvent;
 use App\Http\Requests\Message\StoreRequest;
 use App\Http\Resources\Message\MessageResource;
+use App\Jobs\StoreMessageStatusJob;
 use App\Models\Chat;
 use App\Models\Message;
 use App\Models\MessageStatus;
@@ -19,43 +20,11 @@ class MessageController extends Controller
 
         $data['user_id'] = auth()->id();
 
-        $chat = Chat::where('id', $data['chat_id'])->first();
-        $userIds = $chat->users()
-            ->where('users.id', '!=', auth()->id())
-            ->pluck('users.id')
-            ->all();
+        $message = Message::create($data);
 
-        try {
-            DB::beginTransaction();
+        StoreMessageStatusJob::dispatch($data, $message)->onQueue('store_message');
 
-            $message = Message::create($data);
-
-            foreach ($userIds as $userId) {
-                MessageStatus::create([
-                    'message_id' => $message->id,
-                    'user_id' => $userId,
-                    'chat_id' => $chat->id,
-                ]);
-
-                $count = MessageStatus::where('chat_id', $data['chat_id'])
-                    ->where('user_id', $userId)
-                    ->where('is_read', false)
-                    ->count();
-
-                broadcast(new StoreMessageStatusEvent($count, $data['chat_id'], $userId, $message));
-            }
-
-            broadcast(new StoreMessageEvent($message))->toOthers();
-
-            DB::commit();
-        } catch (\Exception $exception) {
-            DB::rollBack();
-
-            return response()->json([
-                'status' => 'Error',
-                'message' => $exception->getMessage(),
-            ]);
-        }
+        broadcast(new StoreMessageEvent($message))->toOthers();
 
         return MessageResource::make($message)->resolve();
     }

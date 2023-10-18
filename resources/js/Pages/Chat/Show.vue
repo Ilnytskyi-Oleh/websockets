@@ -1,6 +1,6 @@
 <script setup>
 import {
-    Head, usePage,
+    Head, router, usePage,
 } from "@inertiajs/vue3";
 
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
@@ -8,10 +8,11 @@ import NavLink from "@/Components/NavLink.vue";
 import {onBeforeMount, ref} from "vue";
 import Message from "@/Components/Message.vue";
 
-const {chat, messages} = defineProps({
+const { chat, messages } = defineProps({
     chat: Object,
-    users: Object,
-    messages: Object
+    users: Array,
+    messages: Array,
+    isLastPage: Boolean
 })
 
 const page = usePage();
@@ -32,6 +33,8 @@ onBeforeMount(() => {
 
 let newMessageBody = ref('');
 let isSending = ref(false);
+let params = new URLSearchParams(window.location.search)
+let currentPage = ref( 1);
 
 const store = () => {
     if (isSending.value) {
@@ -51,6 +54,18 @@ const store = () => {
     .finally(() => {
         isSending.value = false;
     });
+}
+
+const loadMore = () => {
+
+    axios.get(route('chats.show', {
+        page: ++currentPage.value,
+        chat: chat.id
+    }))
+        .then(res => {
+            messages.unshift(...res.data.messages)
+            page.props.isLastPage = res.data.is_last_page
+        })
 }
 </script>
 
@@ -89,6 +104,16 @@ const store = () => {
                     <div>
                         <div >
                             <div v-if="!!messages.length" class="px-3 py-2 border border-1 rounded border-gray-200 mb-4">
+                                <div class="text-center">
+                                    <a
+                                        @click.prevent="loadMore"
+                                        href="#"
+                                        v-if="!isLastPage"
+                                        class="inline-block underline text-gray-500  tracking-wide hover:text-gray-600"
+                                    >
+                                        Load more...
+                                    </a>
+                                </div>
                                 <div v-for="message in messages" :key="message.id">
                                     <Message :message="message"/>
                                 </div>

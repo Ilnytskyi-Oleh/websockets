@@ -20,7 +20,9 @@ class ChatResource extends JsonResource
             'title' => $this->title,
             'users' => $this->users,
             'unread_count' => $this->unread_message_statuses_count,
-            'last_message' => MessageResource::make($this->lastMessage)->resolve(),
+            'last_message' => $this->lastMessage
+                ? MessageResource::make($this->lastMessage)->resolve()
+                : null,
         ];
     }
 }

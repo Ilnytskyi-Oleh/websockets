@@ -69,13 +69,34 @@ ChatController extends Controller
     }
 
     public function show(Chat $chat) {
-        $messages = $chat->messages()->get();
+
+        $page = \request('page') ?? 1;
+
+        $messages = $chat
+            ->messages()
+            ->latest()
+            ->paginate(5,'*','page', $page);
+
+        $messages->setCollection(
+            $messages->getCollection()->reverse()
+        );
+
         $users = $chat->users()->get();
         $chat->unreadMessageStatuses()->update([
             'is_read' => true,
         ]);
 
+        $isLastPage =  $page == $messages->lastPage();
+
         $messages = MessageResource::collection($messages)->resolve();
+
+        if ($page > 1) {
+            return response()->json([
+                'messages' =>  $messages,
+                'is_last_page' => $isLastPage,
+            ]);
+        }
+
         $users = UserResource::collection($users)->resolve();
         $chat = ChatResource::make($chat)->resolve();
 
@@ -84,7 +105,8 @@ ChatController extends Controller
             compact(
                 'chat',
                 'users',
-                'messages'
+                'messages',
+                'isLastPage'
             )
         );
     }

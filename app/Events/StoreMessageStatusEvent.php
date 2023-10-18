@@ -3,16 +3,14 @@
 namespace App\Events;
 
 use App\Http\Resources\Message\MessageResource;
-use App\Http\Resources\Message\MessageToOtherResource;
 use App\Models\Message;
-use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class StoreMessageStatusEvent implements ShouldBroadcast
+class StoreMessageStatusEvent implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -44,14 +42,16 @@ class StoreMessageStatusEvent implements ShouldBroadcast
         ];
     }
 
-    public function broadcastAs():string {
+    public function broadcastAs(): string
+    {
         return 'store-message-status';
     }
 
-    public function broadcastWith():array {
+    public function broadcastWith(): array
+    {
         return [
             'count' => $this->count,
-            'chat_id' =>$this->chatId,
+            'chat_id' => $this->chatId,
             'message' => MessageResource::make($this->message)->resolve(),
         ];
     }
