@@ -15,7 +15,7 @@ defineProps({
     chats: Array,
 })
 
-window.Echo.channel(`users.${page.props.auth.user.id}`)
+window.Echo.private(`users.${page.props.auth.user.id}`)
     .listen('.store-message-status', res => {
         page.props.chats.filter(chat => {
             if (chat.id === res.chat_id) {
