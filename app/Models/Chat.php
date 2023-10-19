@@ -15,6 +15,17 @@ class Chat extends Model
         return $this->belongsToMany(User::class, 'chat_user', 'chat_id', 'user_id');
     }
 
+//    public function chatWith(): \LaravelIdea\Helper\App\Models\_IH_User_QB|\Illuminate\Database\Eloquent\Relations\BelongsToMany
+//    {
+//        return $this->users()->wherePivot('user_id', '!=', auth()->id());
+//    }
+
+    public function chatWith(): \Illuminate\Database\Eloquent\Relations\HasOneThrough
+    {
+        return $this->hasOneThrough(User::class, ChatUser::class, 'chat_id', 'id', 'id', 'user_id')
+            ->whereNot('user_id', auth()->id());
+    }
+
     public function messages(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Message::class, 'chat_id', 'id');

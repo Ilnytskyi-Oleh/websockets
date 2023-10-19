@@ -24,7 +24,7 @@ ChatController extends Controller
             ->chats()
             ->withCount('unreadMessageStatuses')
             ->has('messages')
-            ->with('lastMessage')
+            ->with(['lastMessage', 'chatWith'])
             ->get();
 
         $chats = ChatResource::collection($chats)->resolve();
@@ -86,7 +86,7 @@ ChatController extends Controller
             'is_read' => true,
         ]);
 
-        $isLastPage =  $page == $messages->lastPage();
+        $isLastPage =  $messages->onLastPage();
 
         $messages = MessageResource::collection($messages)->resolve();
 

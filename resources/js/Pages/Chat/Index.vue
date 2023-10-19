@@ -156,7 +156,7 @@ const storeGroup = () => {
                     >
                         <div class="flex border border-1 rounded overflow-hidden hover:bg-gray-100">
                             <Link :href="route('chats.show', chat.id)" class="inline-block w-full pl-3 py-1">
-                                {{`${chat.id} -- ${chat.title ?? 'My Chat'}` }}
+                                {{ chat.title }}
                                 <span v-if="chat?.unread_count"
                                       class="bg-sky-500 rounded-full px-1.5 py-0.5 text-white text-xs ml-4"
                                 >
